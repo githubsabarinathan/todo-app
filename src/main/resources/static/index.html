@@ -1,0 +1,58 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do App</title>
+</head>
+<body>
+  <h1>My To-Do List</h1>
+
+  <!-- Form to add new todo -->
+  <form id="todoForm">
+    <input type="text" id="title" placeholder="Title" required>
+    <input type="text" id="description" placeholder="Description" required>
+    <button type="submit">Add Todo</button>
+  </form>
+
+  <ul id="todoList"></ul>
+
+  <script>
+    // Load all todos
+    function loadTodos() {
+      fetch("/todos")
+        .then(response => response.json())
+        .then(data => {
+          let list = document.getElementById("todoList");
+          list.innerHTML = "";
+          data.forEach(todo => {
+            let item = document.createElement("li");
+            item.textContent = todo.title + " - " + (todo.completed ? "✅ Done" : "❌ Not Done");
+            list.appendChild(item);
+          });
+        });
+    }
+
+    // Handle form submit
+    document.getElementById("todoForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      let title = document.getElementById("title").value;
+      let description = document.getElementById("description").value;
+
+      fetch("/todos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title, description: description, completed: false })
+      })
+      .then(() => {
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        loadTodos(); // refresh list
+      });
+    });
+
+    // Initial load
+    loadTodos();
+  </script>
+</body>
+</html>
+
+ 
